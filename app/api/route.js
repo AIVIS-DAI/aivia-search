@@ -5,7 +5,7 @@ export async function GET(req) {
 
   try {
     const response = await fetch(
-      `https://api.exchangerate.host/convert?access_key=896ad2494b71b535747e0760d225a517&from=${baseCurrency}&to=${targetCurrency}`
+      `https://api.exchangerate.host/live?access_key=896ad2494b71b535747e0760d225a517`
     );
 
     const data = await response.json();
