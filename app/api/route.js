@@ -1,24 +1,20 @@
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  const query = searchParams.get("q");
-  if (!query) return Response.json({ results: [] });
+  const baseCurrency = searchParams.get("base") || "USD"; // По умолчанию USD
+  const targetCurrency = searchParams.get("target") || "EUR"; // По умолчанию EUR
 
   try {
-    const monicaResponse = await fetch(`https://openapi.monica.im/v1/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer sk-Viscjqv07VpvsEWj72qr0QTCLekSlX5WeT3dtYgefW-cppPW7lo2d8Ig3VuNuXXT5g49QmczIJczflThr2BYSbnRcVws_wzvlpZS
-`,
-      },
-      body: JSON.stringify({
-        model: "monica:search",
-        messages: [{ role: "user", content: query }],
-      }),
-    });
+    const response = await fetch(
+      `https://api.exchangerate.host/live?access_key=896ad2494b71b535747e0760d225a517&source=${baseCurrency}&currencies=${targetCurrency}`
+    );
 
-    const data = await monicaResponse.json();
-    return Response.json({ results: data.choices.map((c) => c.message.content) });
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error("Ошибка при получении данных от API");
+    }
+
+    return Response.json({ rate: data.quotes[`${baseCurrency}${targetCurrency}`] });
   } catch (error) {
     console.error("Ошибка API:", error);
     return Response.json({ results: [] });
